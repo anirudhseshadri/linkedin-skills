@@ -1,0 +1,141 @@
+{
+  "_comment": "Rules that sort engagers by their LinkedIn headline. Keywords are case-insensitive. Copy this file to tracker/data/config.json to change it without touching the committed defaults.",
+  "owner_label": "",
+  "team_label": "Zavo team",
+  "team_keywords": [
+    "zavo",
+    "valorant"
+  ],
+  "profiles": [],
+  "segments": {
+    "student": [
+      "student",
+      "mba candidate",
+      "intern",
+      "pgdm",
+      "’2[5-9]\\b",
+      "'2[5-9]\\b",
+      "\\b20(25|26|27|28)\\b.*(mba|iim|university)"
+    ],
+    "consult": [
+      "consult",
+      "advisory",
+      "advisor",
+      "\\bgep\\b",
+      "accenture",
+      "deloitte",
+      "pwc",
+      "\\bey\\b",
+      "kpmg",
+      "mckinsey",
+      "\\bbcg\\b",
+      "\\bbain\\b",
+      "kearney",
+      "alvarez",
+      "coupa",
+      "zycus",
+      "ivalua",
+      "jaggaer",
+      "presales",
+      "account executive"
+    ],
+    "proc": [
+      "procure",
+      "sourcing",
+      "purchas",
+      "supply chain",
+      "category manag",
+      "supplier",
+      "\\bspend\\b",
+      "vendor manag",
+      "\\bcpo\\b"
+    ],
+    "exec": [
+      "founder",
+      "\\bceo\\b",
+      "\\bcfo\\b",
+      "\\bcoo\\b",
+      "chief",
+      "president",
+      "managing director",
+      "owner",
+      "\\bpartner\\b"
+    ]
+  },
+  "segment_order": [
+    "team",
+    "student",
+    "consult",
+    "proc",
+    "exec",
+    "other"
+  ],
+  "icp": {
+    "label": "Procurement leaders and CPOs",
+    "function_keywords": [
+      "procure",
+      "sourcing",
+      "purchas",
+      "category manag",
+      "vendor manag",
+      "\\bcpo\\b"
+    ],
+    "seniority_keywords": [
+      "\\bcpo\\b",
+      "chief",
+      "\\bhead\\b",
+      "\\bvp\\b",
+      "vice president",
+      "director",
+      "\\bsvp\\b",
+      "\\bevp\\b",
+      "leader",
+      "executive",
+      "global head",
+      "managing director"
+    ],
+    "exclude_keywords": [
+      "consult",
+      "\\bgep\\b",
+      "accenture",
+      "deloitte",
+      "pwc",
+      "kpmg",
+      "mckinsey",
+      "\\bbcg\\b",
+      "\\bbain\\b",
+      "kearney",
+      "coupa",
+      "zycus",
+      "ivalua",
+      "jaggaer",
+      "presales",
+      "account executive",
+      "student",
+      "mba candidate",
+      "intern",
+      "advisor",
+      "client success",
+      "client partner",
+      "product marketing",
+      "community builder",
+      "delivery head",
+      "\\bsales\\b",
+      "business development"
+    ]
+  },
+  "intent_phrases": [
+    "hear more",
+    "learn more",
+    "catch up",
+    "love to chat",
+    "let's connect",
+    "lets connect",
+    "demo",
+    "reach out",
+    "dm me",
+    "tell me more",
+    "keen to",
+    "interested"
+  ]
+}

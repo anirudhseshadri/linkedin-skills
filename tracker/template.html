@@ -1,0 +1,484 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Post Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F8; --panel:#FFFFFF; --ink:#141C2B; --ink2:#4A5568; --ink3:#7A8599; --line:#E1E6EE; --soft:#EAEEF4;
+  --accent:#2B59D9; --accentSoft:#E3EAFB;
+  --s-team:#2B59D9; --s-proc:#0F8A6C; --s-consult:#C2662B; --s-student:#8B5CC7; --s-exec:#B83A6B; --s-other:#9AA3B2;
+  --r-LIKE:#2B59D9; --r-PRAISE:#0F8A6C; --r-EMPATHY:#C23A52; --r-INTEREST:#D9A21B; --r-APPRECIATION:#8B5CC7;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --bg:#0E131C; --panel:#161D2A; --ink:#E8ECF3; --ink2:#AAB4C5; --ink3:#7C879B; --line:#263043; --soft:#1D2636;
+  --accent:#7B9CFF; --accentSoft:#1F2B4A;
+  --s-team:#7B9CFF; --s-proc:#3CC39E; --s-consult:#EE9A5E; --s-student:#B793F0; --s-exec:#EE7BA6; --s-other:#6E7888;
+  --r-LIKE:#7B9CFF; --r-PRAISE:#3CC39E; --r-EMPATHY:#F07A8E; --r-INTEREST:#F0C24E; --r-APPRECIATION:#B793F0;}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#0E131C; --panel:#161D2A; --ink:#E8ECF3; --ink2:#AAB4C5; --ink3:#7C879B; --line:#263043; --soft:#1D2636;
+  --accent:#7B9CFF; --accentSoft:#1F2B4A;
+  --s-team:#7B9CFF; --s-proc:#3CC39E; --s-consult:#EE9A5E; --s-student:#B793F0; --s-exec:#EE7BA6; --s-other:#6E7888;
+  --r-LIKE:#7B9CFF; --r-PRAISE:#3CC39E; --r-EMPATHY:#F07A8E; --r-INTEREST:#F0C24E; --r-APPRECIATION:#B793F0;}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;padding-inline:20px;padding-block:28px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-size:28px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:16px;font-weight:600}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3);font-weight:600}
+.sub{color:var(--ink2);max-width:70ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px}
+.filter{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.kpi{background:var(--panel);padding:16px 18px;display:grid;gap:2px}
+.kpi b{font-family:var(--mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--ink3);font-size:12.5px}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;gap:14px;align-content:start;min-width:0}
+.phead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.phead p{margin:0;color:var(--ink3);font-size:12.5px}
+.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.ins{padding:16px 18px;border-radius:12px;background:var(--accentSoft);display:grid;gap:6px}
+.ins b{font-size:15px}
+.ins p{margin:0;color:var(--ink2);font-size:13.5px}
+.postrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;font:inherit;color:inherit;width:100%}
+.postrow:first-of-type{border-top:0}
+.postrow[aria-pressed="true"] .ptitle{color:var(--accent)}
+.postrow:hover .ptitle{text-decoration:underline}
+.ptitle{font-weight:600}
+.pmeta{color:var(--ink3);font-size:12.5px}
+.pstats{text-align:right;font-family:var(--mono);font-size:13px;color:var(--ink2);white-space:nowrap}
+.pstats strong{color:var(--ink);font-weight:500}
+.bar{grid-column:1/-1;display:flex;height:10px;border-radius:3px;overflow:hidden;background:var(--soft)}
+.bar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.segrow{display:grid;grid-template-columns:150px 1fr 76px;align-items:center;gap:10px;font-size:13px}
+.segrow .track{height:14px;background:var(--soft);border-radius:3px;overflow:hidden}
+.segrow .track i{display:block;height:100%}
+.segrow .v{white-space:nowrap;text-align:right;font-family:var(--mono);color:var(--ink2)}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+input[type=search],select{font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:0}
+input[type=search]{flex:1 1 180px}
+.tablebox{overflow:auto;max-height:560px;border-top:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{position:sticky;top:0;background:var(--panel);text-align:left;font-weight:600;color:var(--ink3);font-size:11px;text-transform:uppercase;letter-spacing:.07em;padding:10px 8px;white-space:nowrap;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td a{color:var(--ink);text-decoration:none;font-weight:600}
+td a:hover{color:var(--accent);text-decoration:underline}
+td .pos{color:var(--ink3);font-size:12px;display:block;max-width:52ch}
+.dots{display:flex;gap:3px}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--soft);border:1px solid var(--line)}
+.dots i.on{background:var(--accent);border-color:var(--accent)}
+.tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.comments{display:grid;gap:0;max-height:520px;overflow-y:auto;border-top:1px solid var(--line)}
+.cm{padding:12px 0;border-bottom:1px solid var(--line);display:grid;gap:3px}
+.cm .who{font-weight:600;font-size:13px}
+.cm .who span{font-weight:400;color:var(--ink3);font-size:12px}
+.cm q{quotes:none;color:var(--ink);font-size:13.5px}
+.cm .m{color:var(--ink3);font-size:12px;font-family:var(--mono)}
+.note{color:var(--ink3);font-size:12px;max-width:90ch}
+.empty{color:var(--ink3);padding:16px 0}
+@media (max-width:900px){.grid2,.insights{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.kpi:last-child{grid-column:1/-1}}
+@media (max-width:480px){.segrow{grid-template-columns:110px 1fr 70px}h1{font-size:23px}.kpi b{font-size:22px}}
+
+.back{background:none;border:0;padding:0;font:inherit;color:var(--accent);cursor:pointer;font-weight:600;font-size:13px}
+.dnav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dnav .pn{display:flex;gap:8px}
+.kpis.six{grid-template-columns:repeat(6,1fr)}
+.posttext{white-space:pre-wrap;color:var(--ink2);font-size:13.5px;max-height:340px;overflow-y:auto;margin:0;padding-right:6px}
+.mixrow{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;font-size:13px}
+.mixrow .track{height:12px;background:var(--soft);border-radius:3px;overflow:hidden}.mixrow .track i{display:block;height:100%}
+.mixrow .v{text-align:right;font-family:var(--mono);color:var(--ink2);white-space:nowrap}
+.thread{padding:14px 0;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.msg{display:grid;gap:3px}
+.msg .who{font-weight:600;font-size:13px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.msg .who a{color:var(--ink);text-decoration:none}.msg .who a:hover{color:var(--accent);text-decoration:underline}
+.msg .who .pos{font-weight:400;color:var(--ink3);font-size:12px}
+.msg p{margin:0;font-size:13.5px}
+.msg .m{color:var(--ink3);font-size:12px;font-family:var(--mono)}
+.replies{display:grid;gap:10px;margin-left:14px;padding-left:14px;border-left:2px solid var(--line)}
+.replies .msg.me{border-left:0}
+.authtag{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accentSoft);padding:1px 7px;border-radius:999px}
+.seg2{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg2 button{font:inherit;font-size:12.5px;padding:5px 10px;border:0;background:var(--panel);color:var(--ink2);cursor:pointer}
+.seg2 button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.threads{max-height:760px;overflow-y:auto;border-top:1px solid var(--line)}
+.sig{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;margin:0 4px 3px 0;white-space:nowrap;background:var(--soft);color:var(--ink2)}
+.sig.hot{background:var(--accentSoft);color:var(--accent);font-weight:600}
+.newtag{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--s-proc);border:1px solid currentColor;padding:0 6px;border-radius:999px;margin-left:6px}
+.grow{position:relative}
+.grow svg{display:block;width:100%;height:auto;overflow:visible}
+.grow .ax{stroke:var(--line);stroke-width:1}
+.grow .ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.grow text{fill:var(--ink3);font-size:11px;font-family:var(--mono)}
+.grow .hit{fill:transparent;cursor:crosshair}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%);font-family:var(--mono)}
+@media (max-width:900px){.kpis.six{grid-template-columns:repeat(2,1fr)}.kpis.six .kpi:last-child{grid-column:auto}}
+</style>
+</head><body>
+<div class="wrap" id="overview">
+<header>
+  <div style="display:grid;gap:6px">
+    <div class="eyebrow" id="eyebrow">LinkedIn engagement</div>
+    <h1>Post Pulse</h1>
+    <div class="sub" id="subline"></div>
+  </div>
+  <div class="filter" id="postFilter" role="group" aria-label="Filter by post"></div>
+</header>
+
+<section class="kpis" id="kpis" aria-label="Headline numbers"></section>
+
+<section class="insights" id="insights" aria-label="Key takeaways"></section>
+
+<div class="grid2">
+  <section class="panel">
+    <div class="phead"><h2>Posts</h2><p>Click a post to open its detail screen</p></div>
+    <div id="posts"></div>
+    <div class="legend" id="rxLegend"></div>
+  </section>
+  <section class="panel">
+    <div class="phead"><h2>Who engaged</h2><p id="segNote"></p></div>
+    <div id="segs" style="display:grid;gap:10px"></div>
+    <div style="display:grid;gap:8px;margin-top:6px">
+      <div class="eyebrow">Audience mix by post</div>
+      <div id="segByPost" style="display:grid;gap:10px"></div>
+      <div class="legend" id="segLegend"></div>
+    </div>
+  </section>
+</div>
+
+<section class="panel" id="prospectPanel">
+  <div class="phead"><h2 id="prospectTitle">Prospects</h2><p id="prospectCount"></p></div>
+  <p class="note" style="margin:0">People whose current headline matches the ICP rules in <span class="num">tracker/config.json</span>, strongest signal first. Mark someone contacted with <span class="num">python3 -m tracker mark "Name" contacted</span>.</p>
+  <div class="tools">
+    <input type="search" id="pq" placeholder="Search prospects" aria-label="Search prospects">
+    <select id="pStat" aria-label="Filter by status"><option value="all">Any status</option><option value="open">Not contacted yet</option><option value="contacted">Contacted</option><option value="new">New since last import</option></select>
+  </div>
+  <div class="tablebox"><table>
+    <thead><tr><th>Person</th><th>Signals</th><th>Posts</th><th class="num">R / C</th><th>First seen</th><th>Status</th></tr></thead>
+    <tbody id="pros"></tbody>
+  </table></div>
+</section>
+
+<div class="grid2">
+  <section class="panel">
+    <div class="phead"><h2>People</h2><p id="peopleCount"></p></div>
+    <div class="tools">
+      <input type="search" id="q" placeholder="Search name or headline" aria-label="Search people">
+      <select id="segSel" aria-label="Filter by audience"></select>
+    </div>
+    <div class="tablebox"><table>
+      <thead><tr><th>Person</th><th>Audience</th><th>Posts</th><th class="num">R / C</th><th>First seen</th></tr></thead>
+      <tbody id="ppl"></tbody>
+    </table></div>
+  </section>
+  <section class="panel">
+    <div class="phead"><h2>Comments</h2><p id="cmCount"></p></div>
+    <div class="comments" id="cms"></div>
+  </section>
+</div>
+
+
+
+<section class="panel">
+  <div class="phead"><h2>Import history</h2><p>Each import is one scrape. Counts show what it added.</p></div>
+  <div class="tablebox"><table>
+    <thead><tr><th>#</th><th>Imported</th><th class="num">Records</th><th class="num">New people</th><th class="num">New reactions</th><th class="num">New comments</th></tr></thead>
+    <tbody id="imps"></tbody>
+  </table></div>
+</section>
+
+<p class="note" id="srcNote"></p>
+</div>
+
+<div class="wrap" id="detail" hidden>
+  <div class="dnav">
+    <button class="back" id="backBtn">← All posts</button>
+    <div class="pn"><button class="chip" id="prevBtn">Newer post</button><button class="chip" id="nextBtn">Older post</button></div>
+  </div>
+  <header><div style="display:grid;gap:6px">
+    <div class="eyebrow" id="dEyebrow"></div>
+    <h1 id="dTitle"></h1>
+    <div class="sub" id="dMeta"></div>
+  </div></header>
+  <section class="kpis six" id="dKpis" aria-label="Post metrics"></section>
+  <div class="grid2">
+    <section class="panel">
+      <div class="phead"><h2>Comment threads</h2>
+        <div class="seg2" role="group" aria-label="Sort threads"><button id="sortTop" aria-pressed="true">Most replies</button><button id="sortNew" aria-pressed="false">Newest</button></div></div>
+      <div class="threads" id="dThreads"></div>
+    </section>
+    <div style="display:grid;gap:20px;align-content:start;min-width:0">
+      <section class="panel"><h2>Post</h2><p class="posttext" id="dText"></p></section>
+      <section class="panel"><div class="phead"><h2>Growth</h2><p id="dGrowNote"></p></div><div id="dGrow"></div></section>
+      <section class="panel"><h2>Reactions</h2><div id="dRx" style="display:grid;gap:8px"></div></section>
+      <section class="panel"><div class="phead"><h2>Who engaged</h2><p id="dSegNote"></p></div><div id="dSeg" style="display:grid;gap:8px"></div></section>
+    </div>
+  </div>
+  <section class="panel">
+    <div class="phead"><h2>People on this post</h2><p id="dPplCount"></p></div>
+    <div class="tools"><input type="search" id="dq" placeholder="Search name or headline" aria-label="Search people on this post"></div>
+    <div class="tablebox"><table><thead><tr><th>Person</th><th>Audience</th><th>Engaged by</th><th>Other posts</th></tr></thead><tbody id="dPpl"></tbody></table></div>
+  </section>
+</div>
+<script type="application/json" id="data">__DATA__</script>
+<script>
+const D=JSON.parse(document.getElementById('data').textContent);
+const SEG={team:'Valorant / Zavo team',proc:'Procurement & supply chain',consult:'Consulting & advisory',student:'Students & MBAs',exec:'Founders & execs',other:'Other'};
+SEG.team=(D.meta&&D.meta.teamLabel)||SEG.team;
+const SEGK=Object.keys(SEG);
+const RX={LIKE:'Like',PRAISE:'Celebrate',EMPATHY:'Love',INTEREST:'Insightful',APPRECIATION:'Support'};
+const posts=[...D.posts].sort((a,b)=>b.date.localeCompare(a.date)||b.reactions-a.reactions);
+posts.forEach((p,i)=>p.n=i+1);
+const byId=Object.fromEntries(posts.map(p=>[p.id,p]));
+let sel='all', segF='all', q='';
+try{const s=localStorage.getItem('pp-post');if(s&&(s==='all'||byId[s]))sel=s}catch(e){}
+const fmtD=s=>new Date(s+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'});
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cv=n=>`var(--s-${n})`;
+function short(t){return t.length>34?t.slice(0,32)+'…':t}
+
+function renderFilter(){
+  const el=document.getElementById('postFilter');
+  el.innerHTML=[['all','All posts'],...posts.map(p=>[p.id,fmtD(p.date)+(p.repost?' reshare':'')])]
+    .map(([id,l])=>`<button class="chip" data-id="${id}" aria-pressed="${sel===id}">${esc(l)}</button>`).join('');
+  el.onclick=e=>{const b=e.target.closest('[data-id]');if(b)setSel(b.dataset.id)};
+}
+function setSel(id){sel=(sel===id&&id!=='all')?'all':id;try{localStorage.setItem('pp-post',sel)}catch(e){};render()}
+const inScope=p=>sel==='all'||p.posts.includes(sel);
+
+function renderKpis(){
+  const ps=sel==='all'?posts:[byId[sel]];
+  const r=ps.reduce((a,p)=>a+p.reactions,0), c=ps.reduce((a,p)=>a+p.comments,0), s=ps.reduce((a,p)=>a+p.shares,0);
+  const ppl=D.people.filter(inScope);
+  const ext=ppl.filter(p=>p.s!=='team').length;
+  const rep=ppl.filter(p=>p.posts.length>1).length;
+  const k=[[r,'Reactions'],[c,'Comments incl. replies'],[ppl.length,'People engaged'],[Math.round(ext/Math.max(ppl.length,1)*100)+'%','From outside the company'],[rep,'Engaged with 2+ posts']];
+  if(sel==='all') k[1][1]='Comments incl. replies · '+s+' shares';
+  document.getElementById('kpis').innerHTML=k.map(([v,l])=>`<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join('');
+}
+
+function renderPosts(){
+  const max=Math.max(...posts.map(p=>p.reactions));
+  document.getElementById('posts').innerHTML=posts.map(p=>{
+    const segs=Object.entries(p.mix).sort((a,b)=>b[1]-a[1]);
+    const w=p.reactions/max*100;
+    return `<button class="postrow" data-id="${p.id}" aria-pressed="${sel===p.id}">
+      <div><div class="ptitle">${esc(p.title)}</div><div class="pmeta">${fmtD(p.date)} · <a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:inherit" onclick="event.stopPropagation()">Open on LinkedIn</a></div></div>
+      <div class="pstats"><strong>${p.reactions}</strong> reactions<br>${p.comments} comments · ${p.shares} shares</div>
+      <div class="bar" style="width:${w}%" title="Reaction mix">${segs.map(([t,c])=>`<i style="width:${c/p.reactions*100}%;background:var(--r-${t})" title="${RX[t]||t}: ${c}"></i>`).join('')}</div>
+    </button>`}).join('');
+  document.querySelectorAll('.postrow').forEach(b=>b.onclick=()=>openPost(b.dataset.id));
+  const types=Object.keys(RX).filter(t=>posts.some(p=>p.mix[t]));
+  document.getElementById('rxLegend').innerHTML=types.map(t=>`<span><i style="background:var(--r-${t})"></i>${RX[t]} <span class="num">${posts.reduce((a,p)=>a+(p.mix[t]||0),0)}</span></span>`).join('');
+}
+
+function renderSegs(){
+  const ppl=D.people.filter(inScope);
+  const c=Object.fromEntries(SEGK.map(k=>[k,0]));ppl.forEach(p=>c[p.s]++);
+  const max=Math.max(...Object.values(c),1);
+  document.getElementById('segNote').textContent=(sel==='all'?'All posts':short(byId[sel].title))+' · '+ppl.length+' people';
+  document.getElementById('segs').innerHTML=SEGK.map(k=>`<div class="segrow"><span>${SEG[k]}</span><div class="track"><i style="width:${c[k]/max*100}%;background:${cv(k)}"></i></div><span class="v">${c[k]} · ${Math.round(c[k]/Math.max(ppl.length,1)*100)}%</span></div>`).join('');
+  document.getElementById('segByPost').innerHTML=posts.map(p=>{
+    const pp=D.people.filter(x=>x.posts.includes(p.id));const cc={};pp.forEach(x=>cc[x.s]=(cc[x.s]||0)+1);
+    const team=Math.round((cc.team||0)/pp.length*100);
+    return `<div style="display:grid;gap:4px;opacity:${sel==='all'||sel===p.id?1:.4}"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px"><span>${esc(short(p.title))}</span><span class="num" style="color:var(--ink3)">${team}% team</span></div>
+    <div class="bar">${SEGK.map(k=>cc[k]?`<i style="width:${cc[k]/pp.length*100}%;background:${cv(k)}" title="${SEG[k]}: ${cc[k]}"></i>`:'').join('')}</div></div>`}).join('');
+  document.getElementById('segLegend').innerHTML=SEGK.map(k=>`<span><i style="background:${cv(k)}"></i>${SEG[k]}</span>`).join('');
+}
+
+function renderPeople(){
+  const ss=document.getElementById('segSel');
+  if(!ss.options.length) ss.innerHTML='<option value="all">All audiences</option>'+SEGK.map(k=>`<option value="${k}">${SEG[k]}</option>`).join('');
+  const ql=q.toLowerCase();
+  const ppl=D.people.filter(inScope).filter(p=>segF==='all'||p.s===segF).filter(p=>!ql||(p.n+' '+p.p).toLowerCase().includes(ql))
+    .sort((a,b)=>b.posts.length-a.posts.length||b.cm-a.cm||a.n.localeCompare(b.n));
+  document.getElementById('peopleCount').textContent=ppl.length+' shown · most engaged first';
+  document.getElementById('ppl').innerHTML=ppl.length?ppl.map(p=>`<tr>
+    <td><a href="${esc(p.u)}" target="_blank" rel="noopener">${esc(p.n)}</a><span class="pos">${esc(p.p)}</span></td>
+    <td><span class="tag" style="color:${cv(p.s)}">${SEG[p.s]}</span></td>
+    <td><div class="dots" title="${p.posts.length} of ${posts.length} posts">${posts.map(x=>`<i class="${p.posts.includes(x.id)?'on':''}" title="${esc(x.title)}"></i>`).join('')}</div></td>
+    <td class="num" style="color:var(--ink2)">${p.rx} / ${p.cm}</td>
+    <td class="num" style="color:var(--ink3);white-space:nowrap">${p.first?fmtD(p.first):''}${p.new?'<span class="newtag">New</span>':''}</td></tr>`).join(''):`<tr><td colspan="5" class="empty">No one matches. Clear the search or pick another audience.</td></tr>`;
+}
+
+function renderComments(){
+  const cm=D.comments.filter(c=>sel==='all'||c.pid===sel).sort((a,b)=>b.replies-a.replies||b.likes-a.likes);
+  document.getElementById('cmCount').textContent=cm.length+' top-level · most discussed first';
+  document.getElementById('cms').innerHTML=cm.length?cm.map(c=>`<div class="cm">
+    <div class="who">${esc(c.n)} <span>· ${esc(c.p.length>70?c.p.slice(0,68)+'…':c.p)}</span></div>
+    <q>${esc(c.t)}</q>
+    <div class="m">On “${esc(short(byId[c.pid].title))}” · ${c.likes} likes · ${c.replies} ${c.replies===1?'reply':'replies'}</div></div>`).join(''):'<div class="empty">No comments on this post.</div>';
+}
+
+function renderHeader(){
+  const M=D.meta||{};
+  document.getElementById('eyebrow').textContent='LinkedIn engagement'+(M.owner?' · '+M.owner:'');
+  const ds=posts.map(p=>p.date).filter(Boolean).sort();
+  const n=M.imports?M.imports.length:0;
+  document.getElementById('subline').textContent=posts.length+' posts'+(ds.length?' from '+fmtD(ds[0])+' to '+fmtD(ds[ds.length-1])+' '+ds[ds.length-1].slice(0,4):'')+'. Who reacted, who commented, and who is new. '+n+(n===1?' import':' imports')+' so far'+(n?', latest '+M.imports[n-1].imported_at.slice(0,10):'')+'.';
+  const nr=D.rx.length, nc=D.comments.length;
+  document.getElementById('srcNote').textContent='Source: '+n+' Apify export'+(n===1?'':'s')+' stored in the local database, de-duplicated to '+nr+' reactions and '+nc+' top-level comments. Headline totals use LinkedIn\'s own counts from the latest import, which include replies. Audience groups and prospects come from each person\'s current LinkedIn headline, so treat them as close estimates. "R / C" = reactions / comments by that person. Built '+(M.generated||'')+'.';
+}
+function pct(a,b){return Math.round(a/Math.max(b,1)*100)}
+function renderInsights(){
+  const M=D.meta||{}, cards=[];
+  const tot=posts.reduce((a,p)=>a+p.reactions,0);
+  if(posts.length){
+    const top=[...posts].sort((a,b)=>b.reactions-a.reactions)[0];
+    const pp=D.people.filter(x=>x.posts.includes(top.id));
+    cards.push(['Top post: '+short(top.title),`It earned ${top.reactions} of ${tot} reactions (${pct(top.reactions,tot)}%) and ${top.comments} comments. ${pct(pp.filter(x=>x.s!=='team').length,pp.length)}% of its engagers are from outside the team.`]);
+  }
+  const imps=M.imports||[];
+  if(imps.length>1){
+    const last=imps[imps.length-1], np=D.people.filter(x=>x.new), npr=np.filter(x=>x.icp);
+    cards.push(['New since the last import',`The latest import added ${last.new_people} new people, ${last.new_reactions} reactions and ${last.new_comments} comments. ${npr.length} of the new people fit the ICP.`]);
+  }else{
+    cards.push(['This is the baseline',`Only one import so far. Import the next scrape of the same profile to see growth per post and who is new.`]);
+  }
+  const rep=D.people.filter(x=>x.posts.length>1), repI=rep.filter(x=>x.icp);
+  const hot=D.people.filter(x=>x.icp&&(x.intent||x.cm)&&x.status!=='contacted');
+  cards.push(['Repeat engagers and hot prospects',`${rep.length} people engaged with 2 or more posts, ${rep.filter(x=>x.s==='team').length} of them on the team and ${repI.length} who fit the ICP. ${hot.length} ICP prospects commented and have not been marked contacted.`]);
+  document.getElementById('insights').innerHTML=cards.map(([b,p])=>`<div class="ins"><b>${esc(b)}</b><p>${esc(p)}</p></div>`).join('');
+}
+let pq='', pStat='all';
+function signals(p){
+  const s=[];
+  if(p.intent) s.push(['Asked to talk',1]);
+  if(p.cm) s.push(['Commented',1]);
+  if(p.posts.length>1) s.push([p.posts.length+' posts',0]);
+  if(p.new) s.push(['New',0]);
+  if(!s.length) s.push(['Reacted once',0]);
+  return s.map(([t,h])=>`<span class="sig${h?' hot':''}">${t}</span>`).join('');
+}
+function renderProspects(){
+  const M=D.meta||{};
+  document.getElementById('prospectTitle').textContent='Prospects: '+(M.icpLabel||'ICP');
+  const ql=pq.toLowerCase();
+  const all=D.people.filter(p=>p.icp).filter(inScope);
+  const list=all.filter(p=>!ql||(p.n+' '+p.p).toLowerCase().includes(ql))
+    .filter(p=>pStat==='all'||(pStat==='open'&&p.status!=='contacted')||(pStat==='contacted'&&p.status==='contacted')||(pStat==='new'&&p.new))
+    .sort((a,b)=>b.score-a.score||b.posts.length-a.posts.length||a.n.localeCompare(b.n));
+  document.getElementById('prospectCount').textContent=list.length+' of '+all.length+' shown';
+  document.getElementById('pros').innerHTML=list.length?list.map(p=>`<tr>
+    <td><a href="${esc(p.u)}" target="_blank" rel="noopener">${esc(p.n)}</a><span class="pos">${esc(p.p)}</span></td>
+    <td style="min-width:130px">${signals(p)}</td>
+    <td><div class="dots" title="${p.posts.length} of ${posts.length} posts">${posts.map(x=>`<i class="${p.posts.includes(x.id)?'on':''}" title="${esc(x.title)}"></i>`).join('')}</div></td>
+    <td class="num" style="color:var(--ink2)">${p.rx} / ${p.cm}</td>
+    <td class="num" style="color:var(--ink3);white-space:nowrap">${p.first?fmtD(p.first):''}</td>
+    <td style="color:var(--ink2)">${esc(p.status||'Open')}${p.note?`<span class="pos">${esc(p.note)}</span>`:''}</td></tr>`).join('')
+    :'<tr><td colspan="6" class="empty">No prospects match. Widen the ICP rules in tracker/config.json or clear the filters.</td></tr>';
+}
+function renderImports(){
+  const imps=(D.meta&&D.meta.imports)||[];
+  document.getElementById('imps').innerHTML=imps.length?[...imps].reverse().map(i=>`<tr><td class="num">${i.id}</td><td class="num">${esc(i.imported_at.replace('T',' ').slice(0,16))}</td><td class="num">${i.records}</td><td class="num">${i.new_people??''}</td><td class="num">${i.new_reactions??''}</td><td class="num">${i.new_comments??''}</td></tr>`).join('')
+    :'<tr><td colspan="6" class="empty">No imports yet.</td></tr>';
+}
+function render(){renderHeader();renderFilter();renderKpis();renderInsights();renderPosts();renderSegs();renderPeople();renderComments();renderProspects();renderImports()}
+document.getElementById('pq').addEventListener('input',e=>{pq=e.target.value;renderProspects()});
+document.getElementById('pStat').addEventListener('change',e=>{pStat=e.target.value;renderProspects()});
+document.getElementById('q').addEventListener('input',e=>{q=e.target.value;renderPeople()});
+document.getElementById('segSel').addEventListener('change',e=>{segF=e.target.value;renderPeople()});
+
+const RXBY={};D.rx.forEach(r=>{(RXBY[r.pid+'|'+r.a]=r.t)});
+const pplById={};
+let cur=null, sortBy='top', dq='';
+const fmtT=s=>{const d=new Date(s+':00Z');return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'})+', '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC'};
+function openPost(id,push=true){
+  cur=byId[id]; if(!cur) return showOverview(false);
+  document.getElementById('overview').hidden=true; document.getElementById('detail').hidden=false;
+  if(push){try{history.replaceState(null,'','#post'+cur.n)}catch(e){}}
+  dq='';document.getElementById('dq').value='';
+  renderDetail(); window.scrollTo(0,0);
+}
+function showOverview(push=true){
+  cur=null;document.getElementById('detail').hidden=true;document.getElementById('overview').hidden=false;
+  if(push){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
+  render();
+}
+function renderDetail(){
+  const p=cur, i=posts.indexOf(p);
+  const ppl=D.people.filter(x=>x.posts.includes(p.id));
+  const cms=D.comments.filter(c=>c.pid===p.id);
+  const replied=cms.filter(c=>c.r.some(r=>r.me)).length;
+  const ext=ppl.filter(x=>x.s!=='team').length;
+  document.getElementById('dEyebrow').textContent='Post '+(i+1)+' of '+posts.length+', newest first'+(p.repost?' · reshare':'');
+  document.getElementById('dTitle').textContent=p.title;
+  document.getElementById('dMeta').innerHTML=fmtD(p.date)+' 2026 · <a href="'+esc(p.url)+'" target="_blank" rel="noopener" style="color:var(--accent)">Open on LinkedIn</a>';
+  const prev=document.getElementById('prevBtn'), next=document.getElementById('nextBtn');
+  prev.disabled=i===0; next.disabled=i===posts.length-1; prev.style.opacity=i===0?.4:1; next.style.opacity=i===posts.length-1?.4:1;
+  const k=[[p.reactions,'Reactions'],[p.comments,'Comments incl. replies'],[p.shares,'Shares'],[ppl.length,'People engaged'],[Math.round(ext/Math.max(ppl.length,1)*100)+'%','From outside the company'],[cms.length?replied+' / '+cms.length:'n/a','Threads the author replied to']];
+  document.getElementById('dKpis').innerHTML=k.map(([v,l])=>`<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join('');
+  document.getElementById('dText').textContent=p.text;
+  const mx=Object.entries(p.mix).sort((a,b)=>b[1]-a[1]), mm=Math.max(...mx.map(x=>x[1]));
+  document.getElementById('dRx').innerHTML=mx.map(([t,c])=>`<div class="mixrow"><span>${RX[t]||t}</span><div class="track"><i style="width:${c/mm*100}%;background:var(--r-${t})"></i></div><span class="v">${c} · ${Math.round(c/p.reactions*100)}%</span></div>`).join('');
+  const sc=Object.fromEntries(SEGK.map(k=>[k,0]));ppl.forEach(x=>sc[x.s]++);const sm=Math.max(...Object.values(sc),1);
+  document.getElementById('dSegNote').textContent=ppl.length+' people';
+  document.getElementById('dSeg').innerHTML=SEGK.map(k=>`<div class="mixrow" style="grid-template-columns:150px 1fr 70px"><span>${SEG[k]}</span><div class="track"><i style="width:${sc[k]/sm*100}%;background:${cv(k)}"></i></div><span class="v">${sc[k]} · ${Math.round(sc[k]/Math.max(ppl.length,1)*100)}%</span></div>`).join('');
+  renderThreads(); renderDPeople(); renderGrowth();
+}
+function renderGrowth(){
+  const h=cur.history||[], el=document.getElementById('dGrow');
+  document.getElementById('dGrowNote').textContent=h.length+(h.length===1?' snapshot':' snapshots')+' · reactions per import';
+  if(h.length<2){el.innerHTML=`<div class="empty">One snapshot so far: ${cur.reactions} reactions. Import a later scrape to see how this post grows.</div>`;return}
+  const W=420,H=150,L=34,R=10,T=12,B=24;
+  const t0=Date.parse(h[0].at), t1=Date.parse(h[h.length-1].at), span=Math.max(t1-t0,1);
+  const ymax=Math.max(...h.map(x=>x.reactions),1);
+  const even=span<864e5, X=x=>L+(even?h.indexOf(x)/(h.length-1):(Date.parse(x.at)-t0)/span)*(W-L-R), Y=v=>T+(1-v/ymax)*(H-T-B);
+  const pts=h.map(x=>[X(x),Y(x.reactions)]);
+  const fd=s=>new Date(s).toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'});
+  el.innerHTML=`<div class="grow"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Reactions over time for this post">
+    <line class="ax" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/>
+    <text x="${L-6}" y="${Y(ymax)+4}" text-anchor="end">${ymax}</text><text x="${L-6}" y="${H-B+4}" text-anchor="end">0</text>
+    <text x="${L}" y="${H-6}">${fd(h[0].at)}</text><text x="${W-R}" y="${H-6}" text-anchor="end">${fd(h[h.length-1].at)}</text>
+    <polyline class="ln" style="stroke:var(--accent)" points="${pts.map(p=>p.join(',')).join(' ')}"/>
+    ${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" style="fill:var(--accent);stroke:var(--panel);stroke-width:2"/><circle class="hit" data-i="${i}" cx="${p[0]}" cy="${p[1]}" r="14"/>`).join('')}
+  </svg><div class="tip" hidden></div></div>
+  <div class="tablebox" style="margin-top:10px"><table><thead><tr><th>Import</th><th class="num">Reactions</th><th class="num">Comments</th><th class="num">Shares</th></tr></thead><tbody>
+  ${h.map(x=>`<tr><td class="num">${fd(x.at)}</td><td class="num">${x.reactions}</td><td class="num">${x.comments}</td><td class="num">${x.shares}</td></tr>`).join('')}</tbody></table></div>`;
+  const tip=el.querySelector('.tip'), box=el.querySelector('.grow'), svg=el.querySelector('svg');
+  el.querySelectorAll('.hit').forEach(c=>{
+    c.addEventListener('mouseenter',()=>{const x=h[+c.dataset.i], r=svg.getBoundingClientRect(), k=r.width/W;
+      tip.hidden=false; tip.style.left=(+c.getAttribute('cx')*k)+'px'; tip.style.top=(+c.getAttribute('cy')*k)+'px';
+      tip.textContent=fd(x.at)+' · '+x.reactions+' reactions · '+x.comments+' comments'});
+    c.addEventListener('mouseleave',()=>{tip.hidden=true});
+  });
+}
+function msgHtml(m,isReply){
+  const tag=m.me?'<span class="authtag">Author</span>':'';
+  return `<div class="msg${m.me?' me':''}"><div class="who"><a href="${esc(m.u)}" target="_blank" rel="noopener">${esc(m.n)}</a>${tag}<span class="pos">${esc(m.p.length>80?m.p.slice(0,78)+'…':m.p)}</span></div>
+  <p>${esc(m.t)}</p><div class="m">${fmtT(m.at)} · ${m.likes} ${m.likes===1?'like':'likes'}${!isReply&&m.link?` · <a href="${esc(m.link)}" target="_blank" rel="noopener" style="color:inherit">View on LinkedIn</a>`:''}</div></div>`;
+}
+function renderThreads(){
+  const cms=D.comments.filter(c=>c.pid===cur.id).sort(sortBy==='top'?(a,b)=>b.replies-a.replies||b.likes-a.likes||b.at.localeCompare(a.at):(a,b)=>b.at.localeCompare(a.at));
+  document.getElementById('sortTop').setAttribute('aria-pressed',sortBy==='top');document.getElementById('sortNew').setAttribute('aria-pressed',sortBy==='new');
+  document.getElementById('dThreads').innerHTML=cms.length?cms.map(c=>`<div class="thread">${msgHtml(c,false)}${c.r.length?`<div class="replies">${c.r.map(r=>msgHtml(r,true)).join('')}</div>`:''}</div>`).join('')
+    :`<div class="empty">No comments on this post. ${cur.reactions} people reacted instead.</div>`;
+}
+function renderDPeople(){
+  const ql=dq.toLowerCase();
+  const ppl=D.people.filter(x=>x.posts.includes(cur.id)).filter(x=>!ql||(x.n+' '+x.p).toLowerCase().includes(ql))
+    .sort((a,b)=>SEGK.indexOf(a.s)-SEGK.indexOf(b.s)||b.posts.length-a.posts.length||a.n.localeCompare(b.n));
+  document.getElementById('dPplCount').textContent=ppl.length+' shown';
+  const how=x=>{const t=RXBY[cur.id+'|'+x.id];const c=D.comments.some(c=>c.pid===cur.id&&c.aid===x.id);return [t?(RX[t]||t):'',c?'Comment':''].filter(Boolean).join(' + ')||'Reaction'};
+  document.getElementById('dPpl').innerHTML=ppl.length?ppl.map(x=>`<tr><td><a href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.n)}</a><span class="pos">${esc(x.p)}</span></td>
+    <td><span class="tag" style="color:${cv(x.s)}">${SEG[x.s]}</span></td><td style="white-space:nowrap">${how(x)}</td>
+    <td class="num" style="color:var(--ink2)">${x.posts.length-1}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">No one matches that search.</td></tr>';
+}
+document.getElementById('backBtn').onclick=()=>showOverview();
+document.getElementById('prevBtn').onclick=()=>{const i=posts.indexOf(cur);if(i>0)openPost(posts[i-1].id)};
+document.getElementById('nextBtn').onclick=()=>{const i=posts.indexOf(cur);if(i<posts.length-1)openPost(posts[i+1].id)};
+document.getElementById('sortTop').onclick=()=>{sortBy='top';renderThreads()};
+document.getElementById('sortNew').onclick=()=>{sortBy='new';renderThreads()};
+document.getElementById('dq').addEventListener('input',e=>{dq=e.target.value;renderDPeople()});
+const hm=location.hash.match(/^#post(\d+)$/);
+if(hm&&posts[+hm[1]-1]) openPost(posts[+hm[1]-1].id,false); else render();
+</script>
+</body></html>
