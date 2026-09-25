@@ -17,3 +17,6 @@ testing/
 # Playwright MCP session artifacts
 .playwright-mcp/
 /fk-*
+
+# engagement tracker: real people data, never commit
+tracker/data/
