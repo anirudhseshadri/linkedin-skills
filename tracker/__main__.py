@@ -1,5 +1,6 @@
 """Engagement tracker command line. Run from the repo root:
 
+    python3 -m tracker fetch                                 # scrape via Apify, import, rebuild (needs APIFY_TOKEN)
     python3 -m tracker import export.json [more.json ...]   # add scrapes, rebuild the dashboard
     python3 -m tracker dashboard                             # rebuild tracker/data/post-pulse.html
     python3 -m tracker prospects [--csv out.csv]             # ICP prospects, strongest signal first
@@ -10,10 +11,11 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import sys
 from pathlib import Path
 
-from tracker import store
+from tracker import fetch, store
 from tracker.classify import load_config
 from tracker.dashboard import build_data, render
 
@@ -33,6 +35,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--db", default=str(store.DEFAULT_DB), help="SQLite file (default: tracker/data/engagement.db)")
     ap.add_argument("--config", default=None, help="rules file (default: tracker/data/config.json, else tracker/config.json)")
     sub = ap.add_subparsers(dest="cmd", required=True)
+
+    f = sub.add_parser("fetch", help="run the Apify scraper now, then import the result")
+    f.add_argument("profiles", nargs="*", help="LinkedIn profile URLs (default: \"profiles\" in the config)")
+    f.add_argument("--max-posts", type=int, default=20, help="posts per profile (default 20)")
+    f.add_argument("--since", default="3months", choices=fetch.POSTED_LIMITS, help="only posts newer than this")
+    f.add_argument("--max-reactions", type=int, default=0, help="per post, 0 = all (default)")
+    f.add_argument("--max-comments", type=int, default=0, help="per post, 0 = all (default)")
+    f.add_argument("--yes", action="store_true", help="skip the spending prompt (for scheduled runs)")
+    f.add_argument("--out", default=str(DEFAULT_OUT))
+    f.add_argument("--author", default=None)
 
     p = sub.add_parser("import", help="add one or more Apify JSON exports")
     p.add_argument("files", nargs="+")
@@ -59,7 +71,35 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     db = store.connect(args.db)
 
-    if args.cmd == "import":
+    if args.cmd == "fetch":
+        cfg = load_config(args.config)
+        profiles = args.profiles or cfg.get("profiles") or []
+        if not profiles:
+            print('no profiles: pass a URL, or add "profiles": ["https://www.linkedin.com/in/..."] '
+                  "to tracker/data/config.json")
+            return 1
+        payload = fetch.build_input(profiles, max_posts=args.max_posts, posted_limit=args.since,
+                                    max_reactions=args.max_reactions, max_comments=args.max_comments)
+        print(f"Apify run {fetch.ACTOR} (paid per result on your Apify account):")
+        print("  " + json.dumps(payload))
+        if not args.yes:
+            if not sys.stdin.isatty():
+                print("not a terminal, so no one can confirm the spend: re-run with --yes")
+                return 1
+            if input("Run it? [y/N] ").strip().lower() not in ("y", "yes"):
+                print("cancelled")
+                return 1
+        try:
+            items = fetch.run_actor(payload, fetch.get_token())
+        except fetch.FetchError as e:
+            print(f"fetch failed: {e}")
+            return 1
+        path = fetch.save_export(items)
+        s = store.import_file(db, path)
+        print(f"saved {path}\nimported: {s['posts']} posts, {s['new_people']} new people, "
+              f"{s['new_reactions']} new reactions, {s['new_comments']} new comments")
+        _dashboard(db, args)
+    elif args.cmd == "import":
         for f in args.files:
             try:
                 s = store.import_file(db, f, allow_repeat=args.again)

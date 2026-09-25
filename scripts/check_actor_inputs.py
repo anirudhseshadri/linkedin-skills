@@ -79,6 +79,16 @@ def collect_payloads() -> list[tuple[str, str, dict]]:
                 pass
     finally:
         ApifyClient._run_sync = original
+
+    # The engagement tracker starts async runs instead of going through the
+    # client, so its payload is built directly rather than intercepted.
+    # The Codex package ships scripts/ without tracker/, so it may be absent.
+    try:
+        from tracker import fetch
+    except ImportError:
+        return seen
+    seen.append(("tracker.fetch", fetch.ACTOR,
+                 fetch.build_input(["https://www.linkedin.com/in/someone/"])))
     return seen
 
 

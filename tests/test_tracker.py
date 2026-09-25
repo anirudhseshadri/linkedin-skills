@@ -12,7 +12,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tracker import store
+from unittest import mock
+
+from tracker import fetch, store
 from tracker.classify import is_icp, load_config, segment
 from tracker.dashboard import build_data, render
 
@@ -116,6 +118,52 @@ class Dashboard(unittest.TestCase):
             html = render(data, Path(d) / "p.html").read_text()
         self.assertNotIn("__DATA__", html)
         self.assertIn("Casey Buyer", html)
+
+
+class Fetch(unittest.TestCase):
+    """The Apify run flow against a fake API: start, poll, page the dataset."""
+
+    def test_input_turns_on_reactions_and_comments(self):
+        payload = fetch.build_input(["https://www.linkedin.com/in/x/"], max_posts=5, posted_limit="month")
+        self.assertEqual(payload["targetUrls"], ["https://www.linkedin.com/in/x/"])
+        self.assertTrue(payload["scrapeReactions"] and payload["scrapeComments"])
+        self.assertEqual((payload["maxPosts"], payload["postedLimit"]), (5, "month"))
+        with self.assertRaises(ValueError):
+            fetch.build_input(["u"], posted_limit="fortnight")
+        with self.assertRaises(ValueError):
+            fetch.build_input([])
+
+    def test_run_polls_until_done_then_pages_the_dataset(self):
+        calls, status = [], iter(["RUNNING", "SUCCEEDED"])
+        rows = [{"type": "reaction", "id": str(i)} for i in range(1500)]
+
+        def fake(method, url, token, body=None, timeout=60):
+            calls.append((method, url.split("?")[0], token))
+            if url.endswith("/runs"):
+                return {"data": {"id": "run1", "defaultDatasetId": "ds1", "status": "READY"}}
+            if "/actor-runs/" in url:
+                return {"data": {"status": next(status)}}
+            offset = int(url.split("offset=")[1].split("&")[0])
+            return rows[offset:offset + 1000]
+
+        items = fetch.run_actor({"targetUrls": ["u"]}, "tok", request=fake, sleep=lambda s: None, log=lambda m: None)
+        self.assertEqual(len(items), 1500)
+        self.assertEqual(sum(1 for c in calls if "/actor-runs/" in c[1]), 2)
+        self.assertTrue(all(c[2] == "tok" for c in calls))
+        self.assertTrue(calls[0][1].endswith(f"/acts/{fetch.ACTOR}/runs"))
+
+    def test_failed_run_raises(self):
+        def fake(method, url, token, body=None, timeout=60):
+            if url.endswith("/runs"):
+                return {"data": {"id": "r", "defaultDatasetId": "d", "status": "RUNNING"}}
+            return {"data": {"status": "FAILED"}}
+        with self.assertRaises(fetch.FetchError):
+            fetch.run_actor({}, "t", request=fake, sleep=lambda s: None, log=lambda m: None)
+
+    def test_missing_token_is_a_clear_error(self):
+        with mock.patch.dict("os.environ", {"APIFY_TOKEN": ""}), mock.patch("lib._env.load_env"):
+            with self.assertRaises(fetch.FetchError):
+                fetch.get_token()
 
 
 if __name__ == "__main__":
